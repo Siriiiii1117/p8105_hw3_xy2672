@@ -88,4 +88,21 @@ aisle_plot =
 aisle_plot
 ```
 
+Make a table showing popular items in these three aisles: "baking ingredients", "dog food care", "packaged vegetables fruits":
+
+```{r}
+top3_table = 
+  instacart |> 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) |>
+  group_by(aisle, product_name) |> 
+  summarize(
+    times_ordered  = n(),
+    .groups = "drop_last" # keep grouping as aisle but not product_name
+  ) |> 
+  slice_max(times_ordered, n = 3) |> 
+  knitr::kable()
+
+top3_table
+```
+
 
