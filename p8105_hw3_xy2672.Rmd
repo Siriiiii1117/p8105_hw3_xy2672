@@ -35,7 +35,7 @@ data("instacart")
 There are `r nrow(instacart)` rows and `r ncol(instacart)` in the `instacart` dataset. 
 The dataset include these variables: `r colnames(instacart)`.
 
-Here are some of the key important variables with illustrative observations:
+Here are some of the key important variables with illustrative observations showing the order of each product, product information, whether it's reordered and the days since the prior order:
 
 ```{r}
 set.seed(1234)
@@ -44,4 +44,23 @@ instacart |>
   relocate(order_id, product_name) |> 
   slice_sample(n = 10)
 ```
+
+Each row in the dataset represents a single product (`product_id`) purchase history from a user (`user_id`). The same `order_id` means that these products are purchased together as a single order. Other key information include where the product is from: `aisle_id`, `aisle`, `department` and `department_id`, and when the order happened: `order_hour_of_day`, `order_dow` (day of the week). 
+
+Number of aisles + which have most items ordered:
+
+```{r}
+num_aisle = 
+  instacart |> 
+  distinct(aisle_id) |> # find distinct aisle id to get how many aisles in the dataset
+  nrow()
+
+most_items_aisle = 
+  instacart |> 
+  count(aisle, sort = TRUE) |> # The most items ordered aisle means that it occurs the most
+  slice(1:5) |> 
+  pull(aisle)
+```
+
+There are `r num_aisle` aisles, and `r most_items_aisle` have the most items ordered.
 
