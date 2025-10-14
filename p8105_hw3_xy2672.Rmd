@@ -212,14 +212,61 @@ rental_price_avg =
   knitr::kable()
 
 rental_price_avg
+
+
 ```
 
-
-
+Based on the table, average rental prices increase slowly each year (excluding the impact of COVID-19), but after the pandemic, average rental prices increase much higher than before in each year.
 
 Make a plot showing NYC Rental Prices within ZIP codes for all available years:
 
-```{r}
+```{r, message = FALSE}
+rental_price_plot = 
+  nyc_price_df |> 
+  ggplot(aes(x = month, y = price, group = zip_code, color = borough)) +
+  geom_line(alpha = 0.5, linewidth = 0.4) +
+  facet_wrap(~borough) +
+  labs(
+    x = "year",
+    y = "price"
+  )
+
+rental_price_plot
 ```
 
+Based on the plot, it is clear that rental prices in all the five boroughs increase over time. From the plot, it is also clear that there is a drop in price during the pandemic, and in part of 2024, which is more significant in Queens, Brooklyn, and Manhattan.
+
+Make a plot showing  ZIP-code-level rental prices across borough in 2023:
+
+```{r}
+zip_2023_avg = 
+  nyc_price_df |> 
+  filter(year(month) == 2023, !is.na(price)) |>
+  group_by(borough, zip_code) |>
+  summarize(
+    avg_price = mean(price, na.rm = TRUE))
+
+zip_2023_avg
+
+price_2023_avg_plot = 
+  zip_2023_avg |> 
+  ggplot(aes(x = borough, y = avg_price, color = borough)) +
+  geom_boxplot() +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.grid.minor = element_blank()
+  )
+
+price_2023_avg_plot
+```
+
+Based on the plot, Manhattan has the highest overall rental prices in 2023 and Staten Island has the lowest. The price range in Staten Island is also the smallest.
+
+Export the two plots:
+```{r, message=FALSE}
+library(patchwork)
+result_plots = rental_price_plot + price_2023_avg_plot
+ggsave("results/combined_plot.png", result_plots)
+```
 
