@@ -42,7 +42,8 @@ set.seed(1234)
 instacart |> 
   select(order_id, reordered, days_since_prior_order, product_name, aisle, department) |> 
   relocate(order_id, product_name) |> 
-  slice_sample(n = 10)
+  slice_sample(n = 10) |> 
+  knitr::kable()
 ```
 
 Each row in the dataset represents a single product (`product_id`) purchase history from a user (`user_id`). The same `order_id` means that these products are purchased together as a single order. Other key information include where the product is from: `aisle_id`, `aisle`, `department` and `department_id`, and when the order happened: `order_hour_of_day`, `order_dow` (day of the week). 
@@ -121,6 +122,8 @@ Make a mean hour table:
 ```
 
 ## Problem 2
+
+Import the zillow and zipcode datset and merge:
 
 ```{r, message = FALSE}
 nyc_zillow_df = 
@@ -216,7 +219,8 @@ rental_price_plot =
   facet_wrap(~borough) +
   labs(
     x = "year",
-    y = "price"
+    y = "price",
+    title = "NYC Rental Prices by Borough"
   ) +
   theme_minimal() + 
   theme(
@@ -241,7 +245,7 @@ price_2023_avg_plot =
   geom_boxplot() +
   labs(
     title = "2023 Average Rental Prices by Borough"
-  )
+  ) + 
   theme_minimal() +
   theme(
     legend.position = "none",
@@ -256,7 +260,36 @@ Based on the plot, Manhattan has the highest overall rental prices in 2023 and S
 Export the two plots:
 ```{r, message = FALSE}
 library(patchwork)
-result_plots = rental_price_plot / price_2023_avg_plot
-ggsave("results/combined_plot.png", result_plots)
+result_plots = rental_price_plot + price_2023_avg_plot
+ggsave("results/combined_plot.png", result_plots, width = 12, height = 10, bg = "white")
+```
+
+## Problem 3
+
+Import the two datasets, tidy and merge them
+
+```{r, message = FALSE}
+accel_df = 
+  read_csv("data/nhanes_accel.csv") |> 
+  janitor::clean_names()
+
+demo_df = 
+  read_csv("data/nhanes_covar.csv", skip = 4) |> 
+  filter(age >= 21) |> 
+  drop_na() |> 
+  janitor::clean_names() |> 
+  mutate(
+    sex = factor(
+      sex, 
+      levels = c(1,2), 
+      labels = c("male", "female")),
+    education = factor(
+      education,
+      levels = c(1, 2, 3),
+      labels = c("Less than high school", "High school equivalent", "More than high school")
+    )
+  )
+
+
 ```
 
