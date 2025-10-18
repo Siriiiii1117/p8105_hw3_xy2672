@@ -290,6 +290,28 @@ demo_df =
     )
   )
 
+accel_demo_df = 
+  left_join(accel_df,demo_df, by = "seqn")
+```
 
+Create table for education:
+
+```{r, message = FALSE, fig.height=12}
+demo_df |> 
+  group_by(education, sex) |> 
+  summarize(n = n()) |> 
+  pivot_wider(
+    names_from = education,
+    values_from = n
+  ) |> 
+  knitr::kable()
+
+demo_df |> 
+  ggplot(aes(x = age, fill = sex)) +
+  geom_histogram() + 
+  facet_wrap(~education, ncol = 1) + 
+  labs(
+    title = "Age Distribution by Education Level and Sex"
+  )
 ```
 
