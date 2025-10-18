@@ -67,7 +67,6 @@ There are `r num_aisle` aisles, and `r most_items_aisle` have the most items ord
 Creating the aisle plot:
 
 ```{r}
-aisle_plot = 
   instacart |> 
   group_by(aisle) |> 
   summarize(
@@ -85,13 +84,12 @@ aisle_plot =
     y = "number of items sold"
   ) 
 
-aisle_plot
 ```
+
 
 Make a table showing popular items in these three aisles: "baking ingredients", "dog food care", "packaged vegetables fruits":
 
 ```{r}
-top3_table = 
   instacart |> 
   filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) |>
   group_by(aisle, product_name) |> 
@@ -101,14 +99,11 @@ top3_table =
   ) |> 
   slice_max(times_ordered, n = 3) |> 
   knitr::kable()
-
-top3_table
 ```
 
 Make a mean hour table:
 
 ```{r, message = FALSE}
-mean_hour_table = 
   instacart |> 
   filter(product_name %in% c("Pink Lady Apples","Coffee Ice Cream")) |> 
   mutate(dow = factor(
@@ -123,14 +118,11 @@ mean_hour_table =
     names_from = dow, 
     values_from = mean_hour) |>
  knitr::kable()
-
-mean_hour_table
 ```
-
 
 ## Problem 2
 
-```{r}
+```{r, message = FALSE}
 nyc_zillow_df = 
   read_csv("data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv") |> 
   pivot_longer(
@@ -198,9 +190,9 @@ There are `r n_116_times` zipcodes observed 116 times and `r n_fewer10` zipcodes
 
 Create a table showing the average rental price in each borough and year:
 
-```{r}
-rental_price_avg = 
+```{r, message = FALSE}
   nyc_price_df |> 
+  mutate(year = format(year, "%Y")) |>
   group_by(borough, year) |> 
   summarize(
     avg_price_year = round(mean(price, na.rm = TRUE), 2)
@@ -210,10 +202,6 @@ rental_price_avg =
     values_from = avg_price_year
   ) |> 
   knitr::kable()
-
-rental_price_avg
-
-
 ```
 
 Based on the table, average rental prices increase slowly each year (excluding the impact of COVID-19), but after the pandemic, average rental prices increase much higher than before in each year.
@@ -229,6 +217,10 @@ rental_price_plot =
   labs(
     x = "year",
     y = "price"
+  ) +
+  theme_minimal() + 
+  theme(
+    legend.position = "none"
   )
 
 rental_price_plot
@@ -238,20 +230,18 @@ Based on the plot, it is clear that rental prices in all the five boroughs incre
 
 Make a plot showing  ZIP-code-level rental prices across borough in 2023:
 
-```{r}
-zip_2023_avg = 
+```{r, message = FALSE}
+price_2023_avg_plot = 
   nyc_price_df |> 
   filter(year(month) == 2023, !is.na(price)) |>
   group_by(borough, zip_code) |>
   summarize(
-    avg_price = mean(price, na.rm = TRUE))
-
-zip_2023_avg
-
-price_2023_avg_plot = 
-  zip_2023_avg |> 
+    avg_price = mean(price, na.rm = TRUE)) |> 
   ggplot(aes(x = borough, y = avg_price, color = borough)) +
   geom_boxplot() +
+  labs(
+    title = "2023 Average Rental Prices by Borough"
+  )
   theme_minimal() +
   theme(
     legend.position = "none",
@@ -264,9 +254,9 @@ price_2023_avg_plot
 Based on the plot, Manhattan has the highest overall rental prices in 2023 and Staten Island has the lowest. The price range in Staten Island is also the smallest.
 
 Export the two plots:
-```{r, message=FALSE}
+```{r, message = FALSE}
 library(patchwork)
-result_plots = rental_price_plot + price_2023_avg_plot
+result_plots = rental_price_plot / price_2023_avg_plot
 ggsave("results/combined_plot.png", result_plots)
 ```
 
